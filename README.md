@@ -51,7 +51,9 @@ From the main folder (QuiplashGameMaster) then run the the following command in 
 
 `npm run serve -- --mode dev`
 
-Then to access the resulting frontend it will display in the console the port but it will most likely be `http://localhost:8081`
+Then to access the resulting frontend enter the URL specified in the console to your normal web browser.
+
+It will display in the console but it will most likely be `http://localhost:8081`
 
 ### Contender
 Setup whatever access point the location will be for the backend. It will likely be `http://localhost:8080` and set the .env.dev file
@@ -61,7 +63,9 @@ From the main folder (QuiplashGameMaster) then run the the following command in 
 
 `npm run serve -- --mode dev`
 
-Then to access the resulting frontend it will display in the console the port but it will most likely be `http://localhost:8082`
+Then to access the resulting frontend enter the URL specified in the console to your normal web browser.
+
+It will display in the console but it will most likely be `http://localhost:8082`
 
 ## Running the tests
 Tests and this section are in TODO status.
