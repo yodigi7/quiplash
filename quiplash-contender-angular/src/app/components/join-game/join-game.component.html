@@ -1,0 +1,25 @@
+<form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="gameId">
+      Game Id:
+    </label>
+    <input type="number" formControlName="gameId" class="form-control" id="gameId"/> 
+    <div *ngIf="submitted && messageForm.controls.gameId.errors" class="error">
+      Don't forget to enter the game id!
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="name">
+      Name:
+    </label>
+    <input type="text" formControlName="name" class="form-control" id="name"/> 
+    <div *ngIf="submitted && messageForm.controls.name.errors" class="error">
+      Don't forget to enter your name!
+    </div>
+  </div>
+
+  <input type="submit" value="Send message" class="btn btn-primary"/>
+
+  {{ errorMessage }}
+</form>

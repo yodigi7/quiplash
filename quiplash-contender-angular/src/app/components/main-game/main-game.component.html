@@ -1,0 +1,7 @@
+<p>
+  {{ phase }}
+</p>
+<app-vote *ngIf="phase === votePhase" [gameId]="gameId" [name]="name" [visible]="phase === votePhase" (emitter)="voted($event)"></app-vote>
+<app-answer *ngIf="phase === answerPhase" [gameId]="gameId" [name]="name" [visible]="phase === answerPhase" (emmiter)="answered($event)"></app-answer>
+<app-join-game *ngIf="phase === joinPhase" (emitter)="joined($event)"></app-join-game>
+<app-wait *ngIf="phase === waitPhase"></app-wait>

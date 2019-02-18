@@ -1,0 +1,8 @@
+<p>
+  vote works! {{ leftAnswerId }}
+</p>
+<div *ngIf="!voted">
+  Vote now!
+  <button (click)="voteLeft()" id="leftButton" class="btn btn-primary">Left id: {{ leftAnswerId }}</button>
+  <button (click)="voteRight()" id="rightButton" class="btn btn-primary">Right id: {{ rightAnswerId }}</button>
+</div>

@@ -1,0 +1,14 @@
+<p>
+  answer works!
+</p>
+
+<form *ngIf="questionsToAnswer.length > 0" (ngSubmit)='submitAnswer()' id="answerForm" [formGroup]="messageForm">
+    <div *ngIf="error">
+      Submission unsuccessful, try again
+    </div>
+    <label for="currentQuestion">
+      {{ currentQuestion }}
+    </label>
+    <textarea formControlName="answer" rows=2 placeholder="Enter repsonse here"></textarea>
+    <input type="submit" class="btn btn-primary"/>
+  </form>
