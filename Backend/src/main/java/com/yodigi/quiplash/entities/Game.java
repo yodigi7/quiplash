@@ -20,8 +20,8 @@ public class Game {
 
     private String phase;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game",
+            cascade = CascadeType.ALL)
     private List<QuestionAnswer> currentQuestionAnswers;
 
     @JsonIgnore

@@ -32,6 +32,14 @@ public class QuestionAnswer {
 
     private Integer score;
 
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     public String getAnswer() {
         return answer;
     }
@@ -73,6 +81,9 @@ public class QuestionAnswer {
     }
 
     public void incrementScore() {
+        if (score == null) {
+            score = 1;
+        }
         score += 1;
     }
 
