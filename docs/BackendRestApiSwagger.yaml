@@ -1,0 +1,426 @@
+swagger: '2.0'
+info:
+  description: 'API documentation for the Quiplash Clone project'
+  version: 1.0.0
+  title: APIs for Quiplash Clone
+host: 'localhost:8080'
+basePath: /
+tags:
+  - name: contender
+    description: APIs for only contender to call
+  - name: game-master
+    description: APIs for only game-master to call
+  - name: shared
+    description: APIs shared between contender and game-master
+schemes:
+  - https
+  - http
+paths:
+  /game/{gameId}/join:
+    post:
+      tags:
+        - contender
+      consumes:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+        - in: body
+          name: JoinRequest
+          required: true
+          schema:
+            type: object
+            required: [gameId, name]
+            properties:
+              gameId:
+                type: integer
+              name:
+                type: string
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Joining phase closed OR Name has been taken'
+  /game/{gameId}/name/{name}/questions:
+    get:
+      tags:
+        - contender
+      description: 'Questions for the contender to answer for the round'
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+        - in: path
+          name: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QuestionAnswer'
+        '500':
+          description: 'Server Error'
+  /game/{gameId}/name/{name}/answer:
+    post:
+      tags:
+        - contender
+      consumes:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+        - in: path
+          name: name
+          required: true
+          type: string
+        - in: body
+          name: AnswerRequest
+          required: true
+          schema:
+            type: object
+            properties:
+              answer:
+                type: string
+              questionAnswerId:
+                type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Server Error'
+  /game/{gameId}/name/{name}/vote:
+    post:
+      tags:
+        - contender
+      consumes:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+        - in: path
+          name: name
+          required: true
+          type: string
+        - in: body
+          name: VoteRequest
+          required: true
+          schema:
+            type: object
+            properties:
+              questionAnswerId:
+                type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Server Error'
+
+  /init:
+    post:
+      tags:
+        - game-master
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: object
+            properties:
+              gameId:
+                type: integer
+  /game/{gameId}/end:
+    post:
+      tags:
+        - game-master
+      consumes:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: "Game doesn't exist"
+  /game/{gameId}/contender-names:
+    get:
+      tags:
+        - game-master
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: object
+            properties:
+              names:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/start-game:
+    post:
+      tags:
+        - game-master
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/start-round:
+    post:
+      tags:
+        - game-master
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/start-voting:
+    post:
+      tags:
+        - game-master
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/question-votes:
+    get:
+      tags:
+        - game-master
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QuestionAnswer'
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/set-next-to-score:
+    post:
+      description: 'Sets the next question to be voted upon'
+      tags:
+        - game-master
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/final-results:
+    get:
+      tags:
+        - game-master
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contender'
+        '500':
+          description: 'Invalid Game Id Exception'
+
+  /game/{gameId}/round-number:
+    get:
+      tags:
+        - shared
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: object
+            properties:
+              round:
+                type: integer
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/phase:
+    get:
+      tags:
+        - shared
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: object
+            properties:
+              phase:
+                type: string
+        '500':
+          description: 'Invalid Game Id Exception'
+  /game/{gameId}/question-to-score:
+    get:
+      tags:
+        - shared
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 'Accepted'
+          schema:
+            type: object
+            properties:
+              questionAnswers:
+                type: array
+                items:
+                  $ref: '#/definitions/QuestionAnswer'
+        '500':
+          description: 'Invalid Game Id Exception'
+definitions:
+  Game:
+    type: object
+    properties:
+      id:
+        type: integer
+      round:
+        type: integer
+      phase:
+        type: string
+  Contender:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      score:
+        type: integer
+      game:
+        $ref: '#/definitions/Game'
+  Round:
+    type: object
+    properties:
+      id:
+        type: integer
+      roundNumber:
+        type: integer
+      game:
+        $ref: '#/definitions/Game'
+  QuestionAnswer:
+    type: object
+    properties:
+      id:
+        type: integer
+      question:
+        type: string
+      answer:
+        type: string
+      score:
+        type: string
+      game:
+        $ref: '#/definitions/Game'
+      contender:
+        $ref: '#/definitions/Contender'
+      round:
+        $ref: '#/definitions/Round'
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
