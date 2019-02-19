@@ -5,10 +5,10 @@ import com.yodigi.quiplash.entities.QuestionAnswer;
 import java.io.Serializable;
 import java.util.List;
 
-public class QuestionsToScoreResponse implements Serializable {
+public class QuestionToScoreResponse implements Serializable {
     private List<QuestionAnswer> questionAnswers;
 
-    public QuestionsToScoreResponse(List<QuestionAnswer> questionAnswers) {
+    public QuestionToScoreResponse(List<QuestionAnswer> questionAnswers) {
         this.questionAnswers = questionAnswers;
     }
 
