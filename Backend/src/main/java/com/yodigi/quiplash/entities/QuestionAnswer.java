@@ -32,6 +32,10 @@ public class QuestionAnswer {
 
     private Integer score;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Game getGame() {
         return game;
     }
