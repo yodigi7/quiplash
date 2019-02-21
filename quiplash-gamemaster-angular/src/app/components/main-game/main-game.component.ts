@@ -24,7 +24,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
 
   constructor(private restProxy: RestProxyService) { }
 
-  ngOnInit() { 
+  ngOnInit() {
     this.initGame();
   }
 
@@ -37,6 +37,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
   }
 
   initGame() {
+    this.phase = this.joinPhase;
     this.restProxy.initGame()
       .subscribe(
         resp => {
@@ -72,9 +73,11 @@ export class MainGameComponent implements OnInit, OnDestroy {
       resp => {
         if (resp.status == 200 && resp.body.phase !== outerThis.phase) {
           outerThis.phase = resp.body.phase;
+          clearInterval(outerThis.countdownInterval);
           switch(outerThis.phase){
             case outerThis.finalPhase: {
               console.log('final phase');
+              outerThis.countdownInterval = setInterval(function () {outerThis.initGame(); outerThis.initGame()}, 20)
             }
             case outerThis.answerPhase: {
               outerThis.countdownInterval = setInterval(outerThis.goToNextPhase, 60000, outerThis, outerThis.startVoting)

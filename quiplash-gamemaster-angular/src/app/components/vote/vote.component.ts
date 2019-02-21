@@ -37,7 +37,13 @@ export class VoteComponent implements OnChanges {
         errors => {
           console.error(errors);
         });
+    } else {
+      this.cleanUp();
     }
+  }
+
+  updateQuestionToScore() {
+    // TODO: finish this up
   }
 
   updateScores() {
