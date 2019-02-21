@@ -1,4 +1,12 @@
 # Quiplash Replacement
+[![build](https://travis-ci.com/yodigi7/quiplash.svg?branch=master)](https://travis-ci.com/yodigi7/quiplash.svg?branch=master)
+[![java](https://img.shields.io/badge/java-v8-blue.svg)](https://img.shields.io/badge/java-v8-blue.svg)
+[![spring](https://img.shields.io/badge/spring-v5.1.5-blue.svg)](https://img.shields.io/badge/spring-v5.1.5-blue.svg)
+[![vue](https://img.shields.io/badge/vue-v2-blue.svg)](https://img.shields.io/badge/vue-v2-blue.svg)
+[![angular](https://img.shields.io/badge/angular-v7-blue.svg)](https://img.shields.io/badge/angular-v7-blue.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
+
+
 First order of business is to come up with a good name, any ideas?
 
 ## Project Explained
