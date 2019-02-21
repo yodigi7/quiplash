@@ -1,19 +1,17 @@
 package com.yodigi.quiplash.controllers;
 
+import com.yodigi.quiplash.dto.InitResponse;
+import com.yodigi.quiplash.dto.JoinRequest;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.exceptions.ContenderAlreadyExistsException;
-import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.ContenderRepository;
 import com.yodigi.quiplash.repositories.GameRepository;
 import com.yodigi.quiplash.utils.RepoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MainController {
@@ -29,16 +27,18 @@ public class MainController {
     @Autowired
     private ContenderRepository contenderRepository;
 
-    @RequestMapping("/init")
-    public Long initGame() {
+    @RequestMapping(value = "/init", method = RequestMethod.POST)
+    public @ResponseBody InitResponse initGame() {
         LOGGER.info("INITIALIZING GAME");
+        LOGGER.debug("test");
         Game game = new Game();
         game.setPhase("joining");
-        return gameRepository.save(game).getId();
+        return new InitResponse(gameRepository.save(game).getId());
     }
 
-    @RequestMapping("/join")
-    public void joinGame(@RequestHeader Long gameId, @RequestHeader String name) throws Exception {
+    @RequestMapping(value = "/game/{gameId}/join", method = RequestMethod.POST)
+    public void joinGame(@PathVariable Long gameId, @RequestBody JoinRequest joinRequest) throws Exception {
+        String name = joinRequest.getName();
         Game game = repoUtil.findGameById(gameId);
         if (!game.getPhase().equals("joining")) {
             throw new Exception("Sorry, the joining phase has closed");
@@ -57,14 +57,13 @@ public class MainController {
         }
     }
 
-    @RequestMapping("/end")
-    public Boolean endGame(@RequestHeader Long id) throws InvalidGameIdException {
+    @RequestMapping(value = "/game/{gameId}/end", method = RequestMethod.POST)
+    public void endGame(@PathVariable Long id) throws Exception {
         Game game = repoUtil.findGameById(id);
         if (game != null) {
             gameRepository.delete(game);
-            return true;
         }
-        return false;
+        throw new Exception("Game never existed");
     }
 
     boolean exists(Game game, String name) {

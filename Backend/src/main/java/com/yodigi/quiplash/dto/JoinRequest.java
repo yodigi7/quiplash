@@ -1,4 +1,15 @@
 package com.yodigi.quiplash.dto;
 
-public class JoinRequest {
+import java.io.Serializable;
+
+public class JoinRequest implements Serializable {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

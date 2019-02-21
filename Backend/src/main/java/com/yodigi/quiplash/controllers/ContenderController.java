@@ -1,10 +1,12 @@
 package com.yodigi.quiplash.controllers;
 
+import com.yodigi.quiplash.dto.AnswerRequest;
+import com.yodigi.quiplash.dto.QuestionsResponse;
+import com.yodigi.quiplash.dto.VoteRequest;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
-import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.RepoUtil;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 public class ContenderController {
 
-    Logger LOGGER = LoggerFactory.getLogger(ContenderController.class);
+    private Logger LOGGER = LoggerFactory.getLogger(ContenderController.class);
 
     @Autowired
     private RepoUtil repoUtil;
@@ -26,27 +28,28 @@ public class ContenderController {
     @Autowired
     private QuestionAnswerRepository questionAnswerRepository;
 
-    @RequestMapping("/name/{name}/get-questions")
-    public Set<QuestionAnswer> restGetQuestions(@RequestHeader Long gameId, @PathVariable String name) throws Exception {
+    @RequestMapping(value = "/game/{gameId}/name/{name}/questions", method = RequestMethod.GET)
+    public @ResponseBody QuestionsResponse restGetQuestions(@PathVariable Long gameId, @PathVariable String name) throws Exception {
         Round currentRound = getCurrentRound(
                 repoUtil.findGameById(gameId));
         Set<QuestionAnswer> questionAnswers = getQuestions(currentRound, name);
         LOGGER.info(name + " from game: " + gameId + " requested questions and got " + questionAnswers.size() + " questions.");
-        return questionAnswers;
+        return new QuestionsResponse(questionAnswers);
     }
 
-    @RequestMapping("/name/{name}/submit-answer")
+    @RequestMapping(value = "/game/{gameId}/name/{name}/answer", method = RequestMethod.POST)
     public void submitAnswer(@PathVariable String name,
-                             @RequestHeader Long gameId,
-                             @RequestHeader Long questionAnswerId,
-                             @RequestBody String answer) throws Exception {
+                             @PathVariable Long gameId,
+                             @RequestBody AnswerRequest answerRequest) throws Exception {
+        Long questionAnswerId = answerRequest.getQuestionAnswerId();
+        String answer = answerRequest.getAnswer();
         QuestionAnswer questionAnswer = repoUtil.findQuestionAnswerById(questionAnswerId);
         Game game = repoUtil.findGameById(gameId);
         Contender contender = repoUtil.findContenderByNameAndGame(name, game);
-        if (questionAnswer.getContender().getId().equals(contender.getId())) {
+        if (!questionAnswer.getContender().getId().equals(contender.getId())) {
             throw new Exception("You tried to answer for someone else. That's against the rules...");
         }
-        if (!game.getPhase().equals("submitting answers")) {
+        if (!game.getPhase().equals("answering questions")) {
             throw new Exception("Time for submitting answers is closed, sorry...");
         }
 
@@ -55,11 +58,12 @@ public class ContenderController {
         //TODO: Do a check to see if everyone is done early
     }
 
-    @RequestMapping("/name/{name}/vote")
+    @RequestMapping(value = "/game/{gameId}/name/{name}/vote", method = RequestMethod.POST)
     public void vote(@PathVariable String name,
-                                 @RequestHeader Long gameId,
-                                 @RequestHeader Long questionAnswerId
+                     @PathVariable Long gameId,
+                     @RequestBody VoteRequest voteRequest
     ) throws Exception {
+        Long questionAnswerId = voteRequest.getQuestionAnswerId();
         Game game = repoUtil.findGameById(gameId);
         QuestionAnswer questionAnswer = repoUtil.findQuestionAnswerById(questionAnswerId);
         boolean validQuestionAnswerId = false;
@@ -72,9 +76,10 @@ public class ContenderController {
         if (!validQuestionAnswerId) {
             throw new Exception("You tried to cheat, that isn't a current question to vote on!");
         }
-        if (questionAnswer.getContender().getName().equals(name)) {
-            throw new Exception("You can't vote for yourself...");
-        }
+//        if (questionAnswer.getContender().getName().equals(name)) {
+//            throw new Exception("You can't vote for yourself...");
+//        }
+        LOGGER.info(String.format("%s voted for id: %d", name, questionAnswerId));
         questionAnswer.incrementScore();
         questionAnswerRepository.save(questionAnswer);
         // TODO: Add check to see if everyone is done voting

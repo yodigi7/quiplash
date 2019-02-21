@@ -49,7 +49,7 @@ export class RestProxyService {
     return this.http.get(url, { "headers": this.restHeader, observe: "response"});
   }
 
-  getFinalResults(gameId: number, name: string): any {
+  getFinalResults(gameId: number): any {
     let url = this.endpoint + `/game/${gameId}/question-to-score`;
     console.log('Sending request to url: ' + url);
     return this.http.get(url, { "headers": this.restHeader, observe: "response"});

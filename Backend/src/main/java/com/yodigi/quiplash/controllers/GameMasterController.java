@@ -1,5 +1,8 @@
 package com.yodigi.quiplash.controllers;
 
+import com.yodigi.quiplash.dto.ContenderNamesResponse;
+import com.yodigi.quiplash.dto.FinalResultsResponse;
+import com.yodigi.quiplash.dto.QuestionVotesResponse;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
@@ -15,9 +18,7 @@ import com.yodigi.quiplash.utils.RetrieveQuestionsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -49,16 +50,16 @@ public class GameMasterController {
 
     private static final int MAX_ROUNDS = 3;
 
-    @RequestMapping("/game/{gameId}/get-contender-names")
-    public Set<String> getContenderNames(@PathVariable Long gameId) throws InvalidGameIdException {
+    @RequestMapping(value = "/game/{gameId}/contender-names", method = RequestMethod.GET)
+    public @ResponseBody ContenderNamesResponse getContenderNames(@PathVariable Long gameId) throws InvalidGameIdException {
         Set<String> contenderNames = new HashSet<>();
         for (Contender contender: repoUtil.findGameById(gameId).getContenders()) {
             contenderNames.add(contender.getName());
         }
-        return contenderNames;
+        return new ContenderNamesResponse(contenderNames);
     }
 
-    @RequestMapping("/game/{gameId}/start-game")
+    @RequestMapping(value = "/game/{gameId}/start-game", method = RequestMethod.POST)
     public void startGame(@PathVariable Long gameId) throws InvalidGameIdException {
         LOGGER.info("Starting game: " + gameId);
         Game game = repoUtil.findGameById(gameId);
@@ -66,8 +67,8 @@ public class GameMasterController {
         if (currentRound == 0 || currentRound == null) {
             LOGGER.debug("Starting first round");
             Set<String> questions = retrieveQuestionsUtil
-                    .getRandomQuestions(game.getContenders().size() * MAX_ROUNDS / 2);
-            LOGGER.info("Requested " + game.getContenders().size() * MAX_ROUNDS / 2 + " questions and got " + questions.size());
+                    .getRandomQuestions(game.getContenders().size() * MAX_ROUNDS);
+            LOGGER.info("Requested " + game.getContenders().size() * MAX_ROUNDS + " questions and got " + questions.size());
             setQuestions(game, questions);
             game.setRound(1);
             game.setPhase("answering questions");
@@ -77,36 +78,45 @@ public class GameMasterController {
         LOGGER.info("Tried to start game but already started..., current round: " + currentRound);
     }
 
-    @RequestMapping("/game/{gameId}/start-round")
-    public Integer startRound(@PathVariable Long gameId) throws InvalidGameIdException {
+    @RequestMapping(value = "/game/{gameId}/start-round", method = RequestMethod.POST)
+    public void startRound(@PathVariable Long gameId) throws InvalidGameIdException {
         Game game = repoUtil.findGameById(gameId);
-        Integer currentRound = game.getRound();
-        Integer nextRound = currentRound + 1;
+        Integer nextRound = game.getRound() + 1;
         game.setRound(nextRound);
         game.setPhase("answering questions");
         gameRepository.save(game);
-        return nextRound;
+        LOGGER.info("starting round " + nextRound);
     }
 
-    @RequestMapping("/game/{gameId}/start-voting")
+    @RequestMapping(value = "/game/{gameId}/start-voting", method = RequestMethod.POST)
     public void startVoting(@PathVariable Long gameId) throws Exception {
+        LOGGER.info("Starting voting");
         Game game = repoUtil.findGameById(gameId);
-        if (game.getPhase().equals("answering questions")){
-            game.setPhase("voting");
+        game.setPhase("voting");
+        if (canContinueVoting(game)) {
+            LOGGER.debug("There is more to vote on still");
+            setCurrentQuestionAnswers(game);
+            LOGGER.info(String.format("Question: %s chosen", game.getCurrentQuestionAnswers().get(0).getQuestion()));
+            LOGGER.info(String.format("Number of questionAnswers: %d", game.getCurrentQuestionAnswers().size()));
+            for (QuestionAnswer questionAnswer : game.getCurrentQuestionAnswers()) {
+                LOGGER.info(String.format("Question id: %d", questionAnswer.getId()));
+            }
+        } else {
+            throw new Exception("No more questions to vote on!");
         }
         gameRepository.save(game);
     }
 
-    @RequestMapping("/game/{gameId}/get-question-votes")
-    public List<QuestionAnswer> getQuestionVotes(@PathVariable Long gameId) throws InvalidGameIdException {
+    @RequestMapping(value = "/game/{gameId}/question-votes", method = RequestMethod.GET)
+    public @ResponseBody QuestionVotesResponse getQuestionVotes(@PathVariable Long gameId) throws InvalidGameIdException {
         Game game = repoUtil.findGameById(gameId);
         game.clearCurrentQuestionAnswers();
-        game.setPhase("showing votes");
+        game.setPhase("voting");
         gameRepository.save(game);
-        return game.getCurrentQuestionAnswers();
+        return new QuestionVotesResponse(game.getCurrentQuestionAnswers());
     }
 
-    @RequestMapping("/game/{gameId}/set-next-to-score")
+    @RequestMapping(value = "/game/{gameId}/set-next-to-score", method = RequestMethod.POST)
     public void setNextToScore(@PathVariable Long gameId) throws Exception {
         Game game = repoUtil.findGameById(gameId);
         Set<QuestionAnswer> questionAnswers = generalUtil.getRoundByRoundNum(game.getRound(), game.getRounds())
@@ -115,7 +125,7 @@ public class GameMasterController {
         // Filter out questionAnswers that have already been scored
         List<QuestionAnswer> questionAnswerList = new ArrayList<>();
         for(QuestionAnswer questionAnswer: questionAnswers) {
-            if (questionAnswer.getScore().equals(null)) {
+            if (questionAnswer.getScore() == null) {
                 questionAnswerList.add(questionAnswer);
             }
         }
@@ -137,13 +147,15 @@ public class GameMasterController {
                 chosenQuestionAnswers.add(questionAnswer);
             }
         }
+        LOGGER.info(String.format("Chosen question: %s", chosenQuestionAnswer.getQuestion()));
+        LOGGER.info(String.format("Chosen questionId: %d", chosenQuestionAnswer.getId()));
         game.setCurrentQuestionAnswers(chosenQuestionAnswers);
         gameRepository.save(game);
     }
 
-    @RequestMapping("/game/{gameId}/final-results")
-    public Set<Contender> getFinalResults(@PathVariable Long gameId) throws InvalidGameIdException {
-        return repoUtil.findGameById(gameId).getContenders();
+    @RequestMapping(value = "/game/{gameId}/final-results", method = RequestMethod.GET)
+    public @ResponseBody FinalResultsResponse getFinalResults(@PathVariable Long gameId) throws InvalidGameIdException {
+        return new FinalResultsResponse(repoUtil.findGameById(gameId).getContenders());
     }
 
     void setQuestions(Game game, Set<String> questions) {
@@ -196,23 +208,29 @@ public class GameMasterController {
             QuestionAnswer questionAnswer2 = new QuestionAnswer();
             questionAnswer1.setQuestion(question);
             questionAnswer1.setRound(round);
+            questionAnswer2.setQuestion(question);
+            questionAnswer2.setRound(round);
             if (!contendersQuestion1.isEmpty()) {
-                questionAnswer1.setContender(
-                        contendersQuestion1.get(
-                                rand.nextInt(contendersQuestion1.size())));
+                Contender contender = contendersQuestion1.get(
+                        rand.nextInt(contendersQuestion1.size()));
+                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                questionAnswer1.setContender(contender);
             } else {
-                questionAnswer1.setContender(
-                        contendersQuestion2.get(
-                                rand.nextInt(contendersQuestion2.size())));
+                Contender contender = contendersQuestion2.get(
+                        rand.nextInt(contendersQuestion2.size()));
+                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                questionAnswer1.setContender(contender);
             }
             if (!contendersQuestion1.isEmpty()) {
-                questionAnswer2.setContender(
-                        contendersQuestion1.get(
-                                rand.nextInt(contendersQuestion1.size())));
+                Contender contender = contendersQuestion1.get(
+                        rand.nextInt(contendersQuestion1.size()));
+//                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                questionAnswer2.setContender(contender);
             } else {
-                questionAnswer2.setContender(
-                        contendersQuestion2.get(
-                                rand.nextInt(contendersQuestion2.size())));
+                Contender contender = contendersQuestion2.get(
+                        rand.nextInt(contendersQuestion2.size()));
+//                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                questionAnswer2.setContender(contender);
             }
             if (questionAnswer1.getContender().equals(questionAnswer2.getContender())) {
                 return getQuestionAnswers(questions, contenders, round);
@@ -223,5 +241,49 @@ public class GameMasterController {
             questionAnswers.add(questionAnswer2);
         }
         return questionAnswers;
+    }
+
+    boolean canContinueVoting(Game game) throws Exception {
+        Round currentRound = generalUtil.getRoundByRoundNum(game.getRound(), game.getRounds());
+        for (QuestionAnswer questionAnswer: currentRound.getQuestionAnswers()) {
+            if (questionAnswer.getScore() == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void setCurrentQuestionAnswers(Game game) throws Exception {
+        // Reset current question answers
+        for (QuestionAnswer questionAnswer: game.getCurrentQuestionAnswers()) {
+            questionAnswer.setGame(null);
+            questionAnswerRepository.save(questionAnswer);
+        }
+
+        Round currentRound = generalUtil.getRoundByRoundNum(game.getRound(), game.getRounds());
+
+        int selectedQuestionInt = new Random().nextInt(currentRound.getQuestionAnswers().size());
+        String selectedQuestionStr = null;
+        List<QuestionAnswer> selectedQuestionAnswers = new ArrayList<>();
+
+        int i = 0;
+        for (QuestionAnswer questionAnswer: currentRound.getQuestionAnswers()) {
+            if (i == selectedQuestionInt) {
+                selectedQuestionStr = questionAnswer.getQuestion();
+                questionAnswer.setGame(game);
+                questionAnswer.setScore(0);
+                break;
+            }
+            i++;
+        }
+        for (QuestionAnswer questionAnswer: currentRound.getQuestionAnswers()) {
+            if (questionAnswer.getQuestion().equals(selectedQuestionStr)) {
+                selectedQuestionAnswers.add(questionAnswer);
+                questionAnswer.setGame(game);
+                questionAnswer.setScore(0);
+            }
+            i++;
+        }
+        game.setCurrentQuestionAnswers(selectedQuestionAnswers);
     }
 }

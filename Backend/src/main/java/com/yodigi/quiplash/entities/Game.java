@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 public class Game {
@@ -20,8 +19,8 @@ public class Game {
 
     private String phase;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game",
+            cascade = CascadeType.ALL)
     private List<QuestionAnswer> currentQuestionAnswers;
 
     @JsonIgnore
