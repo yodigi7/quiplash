@@ -52,6 +52,8 @@ project into an IDE such as IntelliJ with the project SDK setup and hit run to r
 (Backend/src/main/java/com/yodigi/quiplash/QuiplashApplication.java).
 
 ### GameMaster
+**Currently doesn't work, use the Angular frontend equivalent**
+
 Setup whatever access point the location will be for the backend. It will likely be `http://localhost:8080` and set the 
 .env.dev file
 `VUE_APP_BACKEND_BASE_URL` to that value.
@@ -76,6 +78,8 @@ From the main folder (quiplash-gamemaster-angular) then run the the following co
 This command will automatically open the browser and serve the Angular application to it.
 
 ### Contender
+**Currently doesn't work, use the Angular frontend equivalent**
+
 Setup whatever access point the location will be for the backend. It will likely be `http://localhost:8080` and set the 
 .env.dev file
 `VUE_APP_BACKEND_BASE_URL` to that value.
