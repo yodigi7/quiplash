@@ -57,10 +57,7 @@ public class GameMasterControllerTest {
         gameMasterController.setQuestions(game, questions);
 
         for (Round round : game.getRounds()) {
-            System.out.println("Round: " + round.getRoundNumber());
             for (QuestionAnswer questionAnswer : round.getQuestionAnswers()) {
-                System.out.println("Question: " + questionAnswer.getQuestion());
-                System.out.println("Contender: " + questionAnswer.getContender());
                 assertNotNull(questionAnswer.getContender());
                 assertNotNull(questionAnswer.getQuestion());
             }

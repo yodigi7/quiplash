@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,6 +44,7 @@ public class RepoUtilTest {
         Game returnedGame = repoUtil.findGameById(1L);
 
         assertEquals(game, returnedGame);
+        verify(gameRepository).findById(1L);
     }
 
     @Test(expected = InvalidGameIdException.class)
@@ -60,6 +62,7 @@ public class RepoUtilTest {
         QuestionAnswer returnedQuestionAnswer = repoUtil.findQuestionAnswerById(1L);
 
         assertEquals(questionAnswer, returnedQuestionAnswer);
+        verify(questionAnswerRepository).findById(1L);
     }
 
     @Test(expected = Exception.class)
@@ -80,6 +83,7 @@ public class RepoUtilTest {
         Contender returnedContender = repoUtil.findContenderByNameAndGame("name", game);
 
         assertEquals(contender, returnedContender);
+        verify(contenderRepository).findByGameAndName(game, "name");
     }
 
     @Test(expected = Exception.class)

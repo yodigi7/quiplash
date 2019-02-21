@@ -25,8 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -94,15 +93,15 @@ public class ContenderControllerTest {
         game.setContenders(contenders);
 
         doReturn(game).when(repoUtil).findGameById(1L);
-        doReturn(game).when(repoUtil).findGameById(1L);
 
         // TODO: Add ids to the return json
         mockMvc.perform(get("/game/1/name/test/questions"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{questions: [{question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}]}"));
+                .andExpect(content().json("{questions: [{id: 1, question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}, {question: test, score: 1}]}"));
 
         QuestionsResponse questionsResponse = contenderControllerMock.restGetQuestions(1L, "test");
 
         assertEquals(expectedQuestionAnswers, questionsResponse.getQuestions());
+        verify(repoUtil, times(2)).findGameById(1L);
     }
 }
