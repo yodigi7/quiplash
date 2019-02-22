@@ -31,9 +31,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@ContextConfiguration(classes = SpringConfig.class)
 @RunWith(MockitoJUnitRunner.class)
-@DataJpaTest
 public class GameMasterControllerTest {
 
     @Mock

@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -28,5 +29,10 @@ public class GameTest {
         AssertAnnotations.assertField(Game.class, "currentQuestionAnswers", OneToMany.class);
         AssertAnnotations.assertField(Game.class, "contenders", JsonIgnore.class, OneToMany.class);
         AssertAnnotations.assertField(Game.class, "rounds", JsonIgnore.class, OneToMany.class);
+    }
+
+    @Test
+    public void setCurrentQuestionsDoesNotThrowError() {
+        new Game().setCurrentQuestionAnswers(new ArrayList<>());
     }
 }
