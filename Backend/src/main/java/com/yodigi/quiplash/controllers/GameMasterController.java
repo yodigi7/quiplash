@@ -25,7 +25,7 @@ import java.util.*;
 @RestController
 public class GameMasterController {
 
-    Logger LOGGER = LoggerFactory.getLogger(GameMasterController.class);
+    private Logger LOGGER = LoggerFactory.getLogger(GameMasterController.class);
 
     @Autowired
     private GameRepository gameRepository;
@@ -64,7 +64,7 @@ public class GameMasterController {
         LOGGER.info("Starting game: " + gameId);
         Game game = repoUtil.findGameById(gameId);
         Integer currentRound = game.getRound();
-        if (currentRound == 0 || currentRound == null) {
+        if (currentRound == 0) {
             LOGGER.debug("Starting first round");
             Set<String> questions = retrieveQuestionsUtil
                     .getRandomQuestions(game.getContenders().size() * MAX_ROUNDS);
@@ -176,8 +176,7 @@ public class GameMasterController {
     List<Set<String>> splitQuestions(Set<String> inpQuestions) {
         Random rand = new Random();
         List<Set<String>> splitQuestions = new ArrayList<>();
-        List<String> questions = new ArrayList<>();
-        questions.addAll(inpQuestions);
+        List<String> questions = new ArrayList<>(inpQuestions);
 
         for (int i = 0; i < MAX_ROUNDS; i++) {
             Set<String> roundQuestions = new HashSet<>();
@@ -198,10 +197,8 @@ public class GameMasterController {
     Set<QuestionAnswer> getQuestionAnswers(Set<String> questions, Set<Contender> contenders, Round round) {
         Random rand = new Random();
         Set<QuestionAnswer> questionAnswers = new HashSet<>();
-        List<Contender> contendersQuestion1 = new ArrayList<>();
-        List<Contender> contendersQuestion2 = new ArrayList<>();
-        contendersQuestion1.addAll(contenders);
-        contendersQuestion2.addAll(contenders);
+        List<Contender> contendersQuestion1 = new ArrayList<>(contenders);
+        List<Contender> contendersQuestion2 = new ArrayList<>(contenders);
 
         for (String question: questions){
             QuestionAnswer questionAnswer1 = new QuestionAnswer();
