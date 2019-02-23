@@ -3,10 +3,7 @@ package com.yodigi.quiplash.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class Game {
@@ -82,6 +79,9 @@ public class Game {
     }
 
     public void setCurrentQuestionAnswers(Collection<QuestionAnswer> currentQuestionAnswers) {
+        if (this.currentQuestionAnswers == null) {
+            this.currentQuestionAnswers = new ArrayList<>();
+        }
         clearCurrentQuestionAnswers();
         this.currentQuestionAnswers.addAll(currentQuestionAnswers);
     }
