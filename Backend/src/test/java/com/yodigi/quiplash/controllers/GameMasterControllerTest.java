@@ -1,11 +1,15 @@
 package com.yodigi.quiplash.controllers;
 
+import com.yodigi.quiplash.dto.FinalResultsResponse;
+import com.yodigi.quiplash.dto.QuestionVotesResponse;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
 import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.GameRepository;
+import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
+import com.yodigi.quiplash.utils.GeneralUtil;
 import com.yodigi.quiplash.utils.RepoUtil;
 import com.yodigi.quiplash.utils.RetrieveQuestionsUtil;
 import org.junit.Before;
@@ -21,10 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -44,7 +46,11 @@ public class GameMasterControllerTest {
     @Mock
     private RepoUtil repoUtil;
     @Mock
+    private GeneralUtil generalUtil;
+    @Mock
     private GameRepository gameRepository;
+    @Mock
+    private QuestionAnswerRepository questionAnswerRepository;
     @InjectMocks
     private GameMasterController gameMasterController;
 
@@ -168,6 +174,132 @@ public class GameMasterControllerTest {
         assertEquals((Integer) 1, game2.getRound());
         verify(gameRepository).save(game);
         verify(gameRepository).save(game2);
+    }
+
+    @Test
+    public void givenThereAreMoreQuestionsToVoteOn_whenCallingStartVoting_thenUpdatePhaseAndUpdateCurrentQuestionAnswers() throws Exception {
+        Round round = new Round();
+        round.setRoundNumber(2);
+        List<QuestionAnswer> fullQuestionAnswerList = new ArrayList<>();
+        QuestionAnswer questionAnswer1 = new QuestionAnswer();
+        questionAnswer1.setQuestion("temp");
+        QuestionAnswer questionAnswer3 = new QuestionAnswer();
+        questionAnswer3.setQuestion("temp");
+        fullQuestionAnswerList.add(questionAnswer1);
+        fullQuestionAnswerList.add(questionAnswer3);
+        round.setQuestionAnswers(fullQuestionAnswerList);
+        Game game = new Game();
+        game.setRound(2);
+        game.setId(1L);
+        game.setRounds(Collections.singletonList(round));
+        List<QuestionAnswer> originalQuestionAnswers1 = Collections.singletonList(new QuestionAnswer());
+        game.setCurrentQuestionAnswers(originalQuestionAnswers1);
+
+        Round round2 = new Round();
+        Game game2 = new Game();
+        game2.setRound(1);
+        game2.setId(2L);
+        round2.setRoundNumber(1);
+        List<QuestionAnswer> fullQuestionAnswerList2 = new ArrayList<>();
+        QuestionAnswer questionAnswer2 = new QuestionAnswer();
+        questionAnswer2.setQuestion("test");
+        QuestionAnswer questionAnswer4 = new QuestionAnswer();
+        questionAnswer4.setQuestion("test");
+        fullQuestionAnswerList2.add(questionAnswer2);
+        fullQuestionAnswerList2.add(questionAnswer4);
+        round2.setQuestionAnswers(fullQuestionAnswerList2);
+        game2.setRounds(Collections.singletonList(round2));
+        game2.setCurrentQuestionAnswers(Collections.singletonList(new QuestionAnswer()));
+
+        doReturn(game).when(repoUtil).findGameById(1L);
+        doReturn(game2).when(repoUtil).findGameById(2L);
+        doReturn(round2).when(generalUtil).getRoundByRoundNum(eq(1), any());
+        doReturn(round).when(generalUtil).getRoundByRoundNum(eq(2), any());
+
+        mockMvc.perform(post("/game/1/start-voting"))
+                .andExpect(status().isOk());
+        gameMasterController.startVoting(2L);
+
+        assertEquals("voting", game.getPhase());
+        assertEquals("voting", game2.getPhase());
+        assertTrue(game.getCurrentQuestionAnswers().stream().anyMatch(questionAnswer1::equals));
+        assertTrue(game.getCurrentQuestionAnswers().stream().anyMatch(questionAnswer3::equals));
+        assertTrue(game2.getCurrentQuestionAnswers().stream().anyMatch(questionAnswer2::equals));
+        assertTrue(game2.getCurrentQuestionAnswers().stream().anyMatch(questionAnswer4::equals));
+        verify(gameRepository).save(game);
+        verify(gameRepository).save(game2);
+    }
+
+    @Test(expected = Exception.class)
+    public void givenThereAreNoMoreQuestionsToVoteOn_whenCallingStartVoting_thenThrowExceptionAndDontSaveAnything() throws Exception {
+        Round round = new Round();
+        round.setRoundNumber(2);
+        Game game = new Game();
+        game.setRound(2);
+        game.setId(1L);
+        game.setRounds(Collections.singletonList(round));
+        List<QuestionAnswer> originalQuestionAnswers1 = Collections.singletonList(new QuestionAnswer());
+        game.setCurrentQuestionAnswers(originalQuestionAnswers1);
+
+        Round round2 = new Round();
+        Game game2 = new Game();
+        game2.setRound(1);
+        game2.setId(2L);
+        round2.setRoundNumber(1);
+        game2.setRounds(Collections.singletonList(round2));
+        game2.setCurrentQuestionAnswers(Collections.singletonList(new QuestionAnswer()));
+
+        doReturn(game).when(repoUtil).findGameById(1L);
+        doReturn(game2).when(repoUtil).findGameById(2L);
+        doReturn(round2).when(generalUtil).getRoundByRoundNum(eq(1), any());
+        doReturn(round).when(generalUtil).getRoundByRoundNum(eq(2), any());
+
+        mockMvc.perform(post("/game/1/start-voting"))
+                .andExpect(status().isInternalServerError());
+        gameMasterController.startVoting(2L);
+
+        verify(gameRepository, times(0)).save(any());
+        verify(questionAnswerRepository, times(0)).save(any());
+    }
+
+    @Test
+    public void givenValidGameIdAndGameHasCurrentQuestionAnswer_whenCallingGetQuestionVotes_thenCurrentQuestionAnswerAreReturned() throws Exception {
+        Game game = new Game();
+        QuestionAnswer questionAnswer = new QuestionAnswer();
+        questionAnswer.setId(1L);
+        QuestionAnswer questionAnswer2 = new QuestionAnswer();
+        questionAnswer2.setId(2L);
+        List<QuestionAnswer> questionAnswerList = new ArrayList<>();
+        questionAnswerList.add(questionAnswer);
+        questionAnswerList.add(questionAnswer2);
+        game.setCurrentQuestionAnswers(questionAnswerList);
+        doReturn(game).when(repoUtil).findGameById(1L);
+
+        mockMvc.perform(get("/game/1/question-votes").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"questionAnswers\":[{\"id\":1}, {\"id\":2}]}"));
+        QuestionVotesResponse  questionVotesResponse = gameMasterController.getQuestionVotes(1L);
+
+        assertEquals(questionAnswerList, questionVotesResponse.getQuestionAnswers());
+    }
+
+    @Test
+    public void givenValidGameIdAndGameHasContenders_whenCallingGetFinalResults_thenReturnAllOfTheContenders() throws Exception {
+        Contender contender = new Contender();
+        contender.setId(1L);
+        contender.setName("contender name");
+        Game game = new Game();
+        game.setContenders(Collections.singletonList(contender));
+        Set<Contender> expectedContenders = new HashSet<>();
+        expectedContenders.add(contender);
+        doReturn(game).when(repoUtil).findGameById(1L);
+
+        mockMvc.perform(get("/game/1/final-results").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"contenders\":[{\"id\":1, \"name\":\"contender name\"}]}"));
+        FinalResultsResponse finalResultsResponse = gameMasterController.getFinalResults(1L);
+
+        assertEquals(expectedContenders, finalResultsResponse.getContenders());
     }
 
     @Test

@@ -60,7 +60,7 @@ public class GameMasterController {
     }
 
     @RequestMapping(value = "/game/{gameId}/start-game", method = RequestMethod.POST)
-    public void startGame(@PathVariable Long gameId) throws InvalidGameIdException {
+    public void startGame(@PathVariable Long gameId) throws Exception {
         LOGGER.info("Starting game: " + gameId);
         Game game = repoUtil.findGameById(gameId);
         Integer currentRound = game.getRound();
@@ -76,6 +76,7 @@ public class GameMasterController {
             return;
         }
         LOGGER.info("Tried to start game but already started..., current round: " + currentRound);
+        throw new Exception("Tried to start game but already started..., current round: " + currentRound);
     }
 
     @RequestMapping(value = "/game/{gameId}/start-round", method = RequestMethod.POST)
@@ -110,9 +111,8 @@ public class GameMasterController {
     @RequestMapping(value = "/game/{gameId}/question-votes", method = RequestMethod.GET)
     public @ResponseBody QuestionVotesResponse getQuestionVotes(@PathVariable Long gameId) throws InvalidGameIdException {
         Game game = repoUtil.findGameById(gameId);
-        game.clearCurrentQuestionAnswers();
-        game.setPhase("voting");
-        gameRepository.save(game);
+//        game.setPhase("voting");
+//        gameRepository.save(game);
         return new QuestionVotesResponse(game.getCurrentQuestionAnswers());
     }
 
