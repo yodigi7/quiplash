@@ -1,8 +1,6 @@
 package com.yodigi.quiplash.controllers;
 
-import com.yodigi.quiplash.dto.ContenderNamesResponse;
-import com.yodigi.quiplash.dto.FinalResultsResponse;
-import com.yodigi.quiplash.dto.QuestionVotesResponse;
+import com.yodigi.quiplash.dto.*;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
@@ -111,8 +109,6 @@ public class GameMasterController {
     @RequestMapping(value = "/game/{gameId}/question-votes", method = RequestMethod.GET)
     public @ResponseBody QuestionVotesResponse getQuestionVotes(@PathVariable Long gameId) throws InvalidGameIdException {
         Game game = repoUtil.findGameById(gameId);
-//        game.setPhase("voting");
-//        gameRepository.save(game);
         return new QuestionVotesResponse(game.getCurrentQuestionAnswers());
     }
 
@@ -156,6 +152,25 @@ public class GameMasterController {
     @RequestMapping(value = "/game/{gameId}/final-results", method = RequestMethod.GET)
     public @ResponseBody FinalResultsResponse getFinalResults(@PathVariable Long gameId) throws InvalidGameIdException {
         return new FinalResultsResponse(repoUtil.findGameById(gameId).getContenders());
+    }
+
+    @RequestMapping(value = "/game/{gameId}/all-votes-submitted")
+    public @ResponseBody AllVotesSubmitted allVotesSubmitted(@PathVariable Long gameId) throws InvalidGameIdException {
+        Game game = repoUtil.findGameById(gameId);
+        int numberOfVotes = 0;
+        for (QuestionAnswer questionAnswer : game.getCurrentQuestionAnswers()) {
+            numberOfVotes += questionAnswer.getScore();
+        }
+        if (numberOfVotes >= game.getContenders().size()) {
+            return new AllVotesSubmitted(true);
+        }
+        return new AllVotesSubmitted(false);
+    }
+
+    @RequestMapping(value = "/game/{gameId}/more-to-vote-on")
+    public @ResponseBody MoreToVoteOn moreQuestionsToVoteOn(@PathVariable Long gameId) throws Exception {
+        Game game = repoUtil.findGameById(gameId);
+        return new MoreToVoteOn(canContinueVoting(game));
     }
 
     void setQuestions(Game game, Set<String> questions) {
