@@ -61,12 +61,16 @@ public class GameMasterController {
     public void startGame(@PathVariable Long gameId) throws Exception {
         LOGGER.info("Starting game: " + gameId);
         Game game = repoUtil.findGameById(gameId);
+        if (game.getContenders().size() < 2) {
+            throw new Exception("You need at least two people to play this game!");
+        }
         Integer currentRound = game.getRound();
         if (currentRound == 0) {
             LOGGER.debug("Starting first round");
             Set<String> questions = retrieveQuestionsUtil
                     .getRandomQuestions(game.getContenders().size() * MAX_ROUNDS);
             LOGGER.info("Requested " + game.getContenders().size() * MAX_ROUNDS + " questions and got " + questions.size());
+
             setQuestions(game, questions);
             game.setRound(1);
             game.setPhase("answering questions");
@@ -244,22 +248,26 @@ public class GameMasterController {
                         rand.nextInt(contendersQuestion1.size()));
                 LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
                 questionAnswer1.setContender(contender);
+                contendersQuestion1.remove(contender);
             } else {
                 Contender contender = contendersQuestion2.get(
                         rand.nextInt(contendersQuestion2.size()));
                 LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
                 questionAnswer1.setContender(contender);
+                contendersQuestion2.remove(contender);
             }
             if (!contendersQuestion1.isEmpty()) {
                 Contender contender = contendersQuestion1.get(
                         rand.nextInt(contendersQuestion1.size()));
-//                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
                 questionAnswer2.setContender(contender);
+                contendersQuestion1.remove(contender);
             } else {
                 Contender contender = contendersQuestion2.get(
                         rand.nextInt(contendersQuestion2.size()));
-//                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
+                LOGGER.debug(String.format("Contender: %s gets question: %s", contender.getName(), question));
                 questionAnswer2.setContender(contender);
+                contendersQuestion2.remove(contender);
             }
             if (questionAnswer1.getContender().equals(questionAnswer2.getContender())) {
                 return getQuestionAnswers(questions, contenders, round);

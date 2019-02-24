@@ -7,6 +7,7 @@ import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
+import com.yodigi.quiplash.repositories.ContenderRepository;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.GeneralUtil;
 import com.yodigi.quiplash.utils.RepoUtil;
@@ -25,13 +26,12 @@ public class ContenderController {
 
     @Autowired
     private GeneralUtil generalUtil;
-
     @Autowired
     private RepoUtil repoUtil;
-
+    @Autowired
+    private ContenderRepository contenderRepository;
     @Autowired
     private QuestionAnswerRepository questionAnswerRepository;
-
     @Autowired
     private GameMasterController gameMasterController;
 
@@ -91,7 +91,7 @@ public class ContenderController {
         LOGGER.info(String.format("%s voted for id: %d", name, questionAnswerId));
         questionAnswer.incrementScore();
         questionAnswerRepository.save(questionAnswer);
-        // TODO: Add check to see if everyone is done voting
+        updateQuestions(questionAnswer);
     }
 
     private Set<QuestionAnswer> getQuestions(Round currentRound, String name) {
@@ -118,5 +118,9 @@ public class ContenderController {
             }
         }
         return true;
+    }
+
+    void updateQuestions(QuestionAnswer questionAnswer) {
+        contenderRepository.save(questionAnswer.getContender().incrementScore());
     }
 }

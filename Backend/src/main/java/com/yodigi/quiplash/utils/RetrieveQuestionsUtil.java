@@ -33,7 +33,7 @@ public class RetrieveQuestionsUtil {
             String line = reader.readLine();
             if (randomNumbersList.get(0).equals(lineNumber)) {
                 randomQuestions.add(line);
-                LOGGER.debug(String.format("Adding line: %s", line));
+                LOGGER.debug(String.format("Adding question: %s", line));
                 randomNumbersList.remove(0);
             }
             lineNumber += 1;

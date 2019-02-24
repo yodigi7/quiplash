@@ -83,7 +83,13 @@ export class MainGameComponent implements OnInit, OnDestroy {
               setTimeout(outerThis.initGame, 30000, outerThis);
             }
             case outerThis.answerPhase: {
-              setTimeout(outerThis.goToNextPhase, 60000, outerThis, outerThis.startVoting);
+              outerThis.restProxy.getRound(outerThis.gameId).subscribe(
+                resp => {
+                  console.log(resp);
+                  outerThis.roundNum = resp.body.round;
+                }
+              );
+              // setTimeout(outerThis.goToNextPhase, 60000, outerThis, outerThis.startVoting);
               console.log(outerThis.answerPhase);
             }
             default: {
