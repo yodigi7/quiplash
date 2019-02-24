@@ -9,6 +9,7 @@ import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
 import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
+import com.yodigi.quiplash.utils.GeneralUtil;
 import com.yodigi.quiplash.utils.RepoUtil;
 import org.apache.catalina.filters.CorsFilter;
 import org.junit.Before;
@@ -41,11 +42,13 @@ public class ContenderControllerTest {
     private MockMvc mockMvc;
 
     @Mock
+    GameMasterController gameMasterController;
+    @Mock
+    GeneralUtil generalUtil;
+    @Mock
     RepoUtil repoUtil;
-
     @Mock
     QuestionAnswerRepository questionAnswerRepository;
-
     @InjectMocks
     private ContenderController contenderControllerMock;
 
@@ -127,6 +130,7 @@ public class ContenderControllerTest {
         doReturn(questionAnswer).when(repoUtil).findQuestionAnswerById(1L);
         doReturn(game).when(repoUtil).findGameById(1L);
         doReturn(contender).when(repoUtil).findContenderByNameAndGame("name", game);
+        doReturn(Collections.singleton(questionAnswer)).when(generalUtil).getQuestionAnswers(game);
 
         mockMvc.perform(post("/game/1/name/name/answer").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"answer\": \"answer\",\"questionAnswerId\": 1}"))
