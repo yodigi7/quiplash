@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RestProxyService } from 'src/app/services/rest-proxy.service';
-import { constants } from 'src/app/constants/constants';
+import { Constants } from 'src/app/constants/constants';
 
 @Component({
   selector: 'app-main-game',
@@ -10,11 +10,11 @@ import { constants } from 'src/app/constants/constants';
 })
 export class MainGameComponent implements OnInit, OnDestroy {
 
-  readonly answerPhase = constants.answerPhase;
-  readonly joinPhase = constants.joinPhase;
-  readonly votePhase = constants.votePhase;
-  readonly waitPhase = constants.waitPhase;
-  readonly finalPhase = constants.finalPhase;
+  readonly answerPhase = Constants.answerPhase;
+  readonly joinPhase = Constants.joinPhase;
+  readonly votePhase = Constants.votePhase;
+  readonly waitPhase = Constants.waitPhase;
+  readonly finalPhase = Constants.finalPhase;
   roundNum = 1;
   gameId: number;
   phase: string = this.joinPhase;

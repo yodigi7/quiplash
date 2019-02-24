@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { RestProxyService } from 'src/app/services/rest-proxy.service';
-import { constants } from 'src/app/constants/constants';
+import { Constants } from 'src/app/constants/constants';
 
 @Component({
   selector: 'app-vote',
@@ -12,8 +12,8 @@ export class VoteComponent implements OnChanges {
   @Input() visible: boolean;
   @Input() gameId: number;
 
-  readonly VOTE_COUNTDOWN: number = constants.voteTimeout;
-  readonly SHOW_VOTE_COUNTDOWN: number = constants.voteResultsCountdown;
+  readonly VOTE_COUNTDOWN: number = Constants.voteTimeout;
+  readonly SHOW_VOTE_COUNTDOWN: number = Constants.voteResultsCountdown;
 
   prompt: string;
   leftAnswer: string;

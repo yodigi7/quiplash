@@ -9,7 +9,7 @@ import { VoteDto } from '../dto/VoteDto';
   providedIn: 'root'
 })
 export class RestProxyService {
-  readonly endpoint = environment.baseRestUrl;
+  readonly endpoint = environment.baseUrl;
   readonly restHeader = new HttpHeaders({
       'Content-Type':  'application/json'
     });
