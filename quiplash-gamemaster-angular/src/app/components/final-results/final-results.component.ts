@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { CLEANUP } from '@angular/core/src/render3/interfaces/view';
 import { RestProxyService } from 'src/app/services/rest-proxy.service';
+import { environment } from 'src/environments/environment';
+import { Constants } from 'src/app/constants/constants';
 
 @Component({
   selector: 'app-final-results',
@@ -35,7 +37,7 @@ export class FinalResultsComponent implements OnChanges {
           console.log(resp);
           if (resp.status === 200) {
             this.contenders = resp.body.contenders;
-            this.restProxy.endGame(this.gameId).subscribe();
+            setTimeout(this.restProxy.endGame(this.gameId).subscribe, Constants.finalResultsTimeout);
           }
         },
         errors => {
