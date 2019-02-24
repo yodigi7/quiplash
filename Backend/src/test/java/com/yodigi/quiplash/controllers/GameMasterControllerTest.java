@@ -6,7 +6,6 @@ import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
-import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.GameRepository;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.GeneralUtil;
@@ -104,7 +103,7 @@ public class GameMasterControllerTest {
         game2.setId(2L);
         game2.setContenders(contenders);
         doReturn(game).when(repoUtil).findGameById(1L);
-        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(anyInt());
+        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(2);
         doReturn(game2).when(repoUtil).findGameById(2L);
 
         mockMvc.perform(post("/game/1/start-game"))
@@ -304,7 +303,7 @@ public class GameMasterControllerTest {
     }
 
     @Test
-    public void givenValidGameId_whenCallingSet_thenCurrentquestionAnswersAreUpdated() throws Exception {
+    public void givenValidGameId_whenCallingSet_thenCurrentQuestionAnswersAreUpdated() throws Exception {
         Game game = new Game();
         QuestionAnswer currentQuestionAnswer1 = new QuestionAnswer();
         QuestionAnswer currentQuestionAnswer2 = new QuestionAnswer();
@@ -314,7 +313,7 @@ public class GameMasterControllerTest {
         currentQuestionAnswer1.setGame(game);
         currentQuestionAnswer2.setGame(game);
         currentQuestionAnswer1.setScore(0);
-        currentQuestionAnswer1.setScore(0);
+        currentQuestionAnswer2.setScore(0);
         newQuestionAnswer1.setScore(null);
         newQuestionAnswer2.setScore(null);
         currentQuestionAnswer1.setId(1L);

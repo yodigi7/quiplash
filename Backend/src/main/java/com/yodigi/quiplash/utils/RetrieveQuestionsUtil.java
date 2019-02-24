@@ -4,23 +4,51 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.util.*;
 
+import static java.util.Collections.sort;
+
 public class RetrieveQuestionsUtil {
-    Random random = new Random();
 
-    Logger LOGGER = LoggerFactory.getLogger(RetrieveQuestionsUtil.class);
+    private Logger LOGGER = LoggerFactory.getLogger(RetrieveQuestionsUtil.class);
 
-    public Set<String> getRandomQuestions(Integer num) {
-        Set<String> returnList = new HashSet<>();
-        while (returnList.size() < num) {
-            returnList.add(RandomStringUtils.randomAlphabetic(10));
+    public Set<String> getRandomQuestions(Integer num) throws IOException {
+        String filename = "onlyQuestions.txt";
+        Random random = new Random();
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        int numberOfLines = numberOfLinesInFile(filename);
+        BufferedReader reader = new BufferedReader(
+                new FileReader(Objects.requireNonNull(classLoader.getResource(filename)).getFile()));
+
+        Set<String> randomQuestions = new HashSet<>();
+        Set<Integer> randomNumbersSet = new HashSet<>();
+        while(randomNumbersSet.size() < num) {
+            randomNumbersSet.add(random.nextInt(numberOfLines));
         }
-        LOGGER.info("Generated questions:");
-        for (String question: returnList) {
-            LOGGER.info(question);
+        List<Integer> randomNumbersList = new ArrayList<>(randomNumbersSet);
+        sort(randomNumbersList);
+        int lineNumber = 0;
+        while (randomNumbersList.size() > 0) {
+            String line = reader.readLine();
+            if (randomNumbersList.get(0).equals(lineNumber)) {
+                randomQuestions.add(line);
+                LOGGER.debug(String.format("Adding line: %s", line));
+                randomNumbersList.remove(0);
+            }
+            lineNumber += 1;
         }
-        return returnList;
+
+        return randomQuestions;
     }
 
+    int numberOfLinesInFile(String fileName) throws IOException {
+        LineNumberReader lineNumberReader = new LineNumberReader(
+                new FileReader(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(fileName)).getFile()));
+        int numberOfLines = 0;
+        while (lineNumberReader.readLine() != null) {
+            numberOfLines += 1;
+        }
+        return numberOfLines;
+    }
 }

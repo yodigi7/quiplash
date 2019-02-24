@@ -152,7 +152,7 @@ public class GameMasterController {
                 chosenQuestionAnswers.add(questionAnswer);
             }
         }
-        LOGGER.info(String.format("Found %d questions to replace, this should be 2.", chosenQuestionAnswers.size()));
+        LOGGER.debug(String.format("Found %d questions to replace, this should be 2.", chosenQuestionAnswers.size()));
         LOGGER.info(String.format("Chosen question: %s", chosenQuestionAnswer.getQuestion()));
         LOGGER.info(String.format("Chosen questionId: %d", chosenQuestionAnswer.getId()));
         game.setCurrentQuestionAnswers(chosenQuestionAnswers);
