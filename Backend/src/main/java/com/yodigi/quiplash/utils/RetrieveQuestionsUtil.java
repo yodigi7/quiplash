@@ -14,9 +14,9 @@ public class RetrieveQuestionsUtil {
     private Logger LOGGER = LoggerFactory.getLogger(RetrieveQuestionsUtil.class);
 
     public Set<String> getRandomQuestions(Integer num) throws IOException {
-        String filename = "onlyQuestions.txt";
+        String filename = "pgQuestions.txt";
         Random random = new Random();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = getClass().getClassLoader();
         int numberOfLines = numberOfLinesInFile(filename);
         BufferedReader reader = new BufferedReader(
                 new FileReader(Objects.requireNonNull(classLoader.getResource(filename)).getFile()));
@@ -44,7 +44,7 @@ public class RetrieveQuestionsUtil {
 
     int numberOfLinesInFile(String fileName) throws IOException {
         LineNumberReader lineNumberReader = new LineNumberReader(
-                new FileReader(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource(fileName)).getFile()));
+                new FileReader(Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).getFile()));
         int numberOfLines = 0;
         while (lineNumberReader.readLine() != null) {
             numberOfLines += 1;
