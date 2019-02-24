@@ -37,7 +37,7 @@ export class FinalResultsComponent implements OnChanges {
           console.log(resp);
           if (resp.status === 200) {
             this.contenders = resp.body.contenders;
-            setTimeout(this.restProxy.endGame(this.gameId).subscribe, Constants.finalResultsTimeout);
+            setTimeout(this.endGame, Constants.finalResultsTimeout, this);
           }
         },
         errors => {
@@ -45,4 +45,7 @@ export class FinalResultsComponent implements OnChanges {
         });
   }
 
+  endGame(outerThis: this) {
+    outerThis.restProxy.endGame(outerThis.gameId).subscribe();
+  }
 }

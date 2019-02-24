@@ -96,6 +96,7 @@ public class GameMasterControllerTest {
         game.setId(1L);
         List<Contender> contenders = new ArrayList<>();
         contenders.add(new Contender());
+        contenders.add(new Contender());
         game.setContenders(contenders);
         doReturn(game).when(repoUtil).findGameById(1L);
         Game game2 = new Game();
@@ -386,7 +387,6 @@ public class GameMasterControllerTest {
         Set<String> questions = new HashSet<>();
         questions.add("question1");
         questions.add("question2");
-        questions.add("question3");
 
         Set<QuestionAnswer> questionAnswers = gameMasterController.getQuestionAnswers(questions, contenders, round);
 
@@ -413,4 +413,7 @@ public class GameMasterControllerTest {
         assertEquals(newCount, questions.size());
     }
 
+    // TODO: add test for checking that a group of 3+ will have questions evenly split each round
+
+    // TODO: add test to check for exception when only one person is in the game and request for start
 }

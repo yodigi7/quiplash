@@ -68,6 +68,11 @@ public class Contender {
         this.questionAndAnswers = questionAndAnswers;
     }
 
+    public Contender incrementScore() {
+        this.score += 1;
+        return this;
+    }
+
     public Contender(Game game, String name) {
         this.game = game;
         this.name = name;

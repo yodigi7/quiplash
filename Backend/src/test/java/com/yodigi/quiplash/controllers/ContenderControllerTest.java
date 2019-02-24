@@ -8,6 +8,7 @@ import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
 import com.yodigi.quiplash.exceptions.InvalidGameIdException;
+import com.yodigi.quiplash.repositories.ContenderRepository;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.GeneralUtil;
 import com.yodigi.quiplash.utils.RepoUtil;
@@ -41,6 +42,8 @@ public class ContenderControllerTest {
 
     private MockMvc mockMvc;
 
+    @Mock
+    private ContenderRepository contenderRepository;
     @Mock
     private GameMasterController gameMasterController;
     @Mock
@@ -173,6 +176,9 @@ public class ContenderControllerTest {
     public void givenValidNameAndGameIdAndVoteRequest_whenCallingVote_thenSaveVote() throws Exception {
         QuestionAnswer questionAnswer = new QuestionAnswer();
         questionAnswer.setId(1L);
+        Contender contender = new Contender();
+        contender.setScore(0L);
+        questionAnswer.setContender(contender);
         Game game = new Game();
         game.setCurrentQuestionAnswers(Collections.singletonList(questionAnswer));
         VoteRequest voteRequest = new VoteRequest();
