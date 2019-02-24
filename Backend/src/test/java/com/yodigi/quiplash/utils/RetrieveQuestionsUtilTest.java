@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,14 +21,14 @@ public class RetrieveQuestionsUtilTest {
     private RetrieveQuestionsUtil retrieveQuestionsUtil;
 
     @Test
-    public void givenAPositiveNumber_whenCallingGetRandomQuestions_thenReturnThatManyUniqueQuestions() {
+    public void givenAPositiveNumber_whenCallingGetRandomQuestions_thenReturnThatManyUniqueQuestions() throws IOException {
         Set<String> questions = retrieveQuestionsUtil.getRandomQuestions(5);
 
         assertEquals(5, questions.size());
     }
 
     @Test
-    public void givenANegativeNumberOrZero_whenCallingGetRandomQuestions_thenReturnAnEmptySet() {
+    public void givenANegativeNumberOrZero_whenCallingGetRandomQuestions_thenReturnAnEmptySet() throws IOException {
         assertEquals(new HashSet<>(), retrieveQuestionsUtil.getRandomQuestions(-20));
         assertEquals(new HashSet<>(), retrieveQuestionsUtil.getRandomQuestions(0));
     }

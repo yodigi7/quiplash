@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RestProxyService } from 'src/app/services/rest-proxy.service';
+import { constants } from 'src/app/constants/constants';
 
 @Component({
   selector: 'app-main-game',
@@ -9,14 +10,15 @@ import { RestProxyService } from 'src/app/services/rest-proxy.service';
 })
 export class MainGameComponent implements OnInit, OnDestroy {
 
-  readonly answerPhase = 'answering questions';
-  readonly joinPhase = 'joining';
-  readonly votePhase = 'voting';
-  readonly waitPhase = 'waiting';
-  readonly finalPhase = 'final results';
+  readonly answerPhase = constants.answerPhase;
+  readonly joinPhase = constants.joinPhase;
+  readonly votePhase = constants.votePhase;
+  readonly waitPhase = constants.waitPhase;
+  readonly finalPhase = constants.finalPhase;
   roundNum = 1;
   gameId: number;
-  phase = this.joinPhase;
+  phase: string = this.joinPhase;
+  realPhase: string = this.joinPhase;
   private interval: NodeJS.Timer;
 
   private nextPhase: string;
@@ -25,7 +27,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
   constructor(private restProxy: RestProxyService) { }
 
   ngOnInit() {
-    this.initGame();
+    this.initGame(this);
   }
 
   ngOnDestroy() {
@@ -36,19 +38,20 @@ export class MainGameComponent implements OnInit, OnDestroy {
     clearInterval(this.interval);
   }
 
-  initGame() {
-    this.phase = this.joinPhase;
-    this.restProxy.initGame()
+  initGame(outerThis: this) {
+    outerThis.phase = outerThis.joinPhase;
+    outerThis.realPhase = outerThis.joinPhase;
+    outerThis.restProxy.initGame()
       .subscribe(
         resp => {
           console.log(resp);
           if (resp.status == 200) {
-            this.gameId = resp.body.gameId;
-            this.updatePhaseStart();
+            outerThis.gameId = resp.body.gameId;
+            outerThis.updatePhaseStart();
           }
         }, 
         errors => {
-          this.initGame()
+          outerThis.initGame(outerThis)
           console.error(errors);
         });
   }
@@ -60,7 +63,6 @@ export class MainGameComponent implements OnInit, OnDestroy {
   goToNextPhase(outerThis: this, updatePhaseFunction: Function) {
     if (outerThis.phase !== outerThis.nextPhase) {
       outerThis.phase = outerThis.nextPhase;
-
     }
   }
 
@@ -73,15 +75,16 @@ export class MainGameComponent implements OnInit, OnDestroy {
       resp => {
         if (resp.status == 200 && resp.body.phase !== outerThis.phase) {
           outerThis.phase = resp.body.phase;
+          outerThis.realPhase = resp.body.phase;
           clearInterval(outerThis.countdownInterval);
-          switch(outerThis.phase){
+          switch(outerThis.phase) {
             case outerThis.finalPhase: {
-              console.log('final phase');
-              outerThis.countdownInterval = setInterval(function () {outerThis.initGame(); outerThis.initGame()}, 20)
+              console.log(outerThis.finalPhase);
+              setTimeout(outerThis.initGame, 30000, outerThis);
             }
             case outerThis.answerPhase: {
-              outerThis.countdownInterval = setInterval(outerThis.goToNextPhase, 60000, outerThis, outerThis.startVoting)
-              console.log('answer phase');
+              setTimeout(outerThis.goToNextPhase, 60000, outerThis, outerThis.startVoting);
+              console.log(outerThis.answerPhase);
             }
             default: {
               console.log('default');

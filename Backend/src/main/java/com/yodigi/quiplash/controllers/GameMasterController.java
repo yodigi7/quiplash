@@ -1,8 +1,6 @@
 package com.yodigi.quiplash.controllers;
 
-import com.yodigi.quiplash.dto.ContenderNamesResponse;
-import com.yodigi.quiplash.dto.FinalResultsResponse;
-import com.yodigi.quiplash.dto.QuestionVotesResponse;
+import com.yodigi.quiplash.dto.*;
 import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
@@ -98,9 +96,9 @@ public class GameMasterController {
             LOGGER.debug("There is more to vote on still");
             setCurrentQuestionAnswers(game);
             LOGGER.info(String.format("Question: %s chosen", game.getCurrentQuestionAnswers().get(0).getQuestion()));
-            LOGGER.info(String.format("Number of questionAnswers: %d", game.getCurrentQuestionAnswers().size()));
+            LOGGER.debug(String.format("Number of questionAnswers: %d", game.getCurrentQuestionAnswers().size()));
             for (QuestionAnswer questionAnswer : game.getCurrentQuestionAnswers()) {
-                LOGGER.info(String.format("Question id: %d", questionAnswer.getId()));
+                LOGGER.debug(String.format("Question id: %d", questionAnswer.getId()));
             }
         } else {
             throw new Exception("No more questions to vote on!");
@@ -111,8 +109,6 @@ public class GameMasterController {
     @RequestMapping(value = "/game/{gameId}/question-votes", method = RequestMethod.GET)
     public @ResponseBody QuestionVotesResponse getQuestionVotes(@PathVariable Long gameId) throws InvalidGameIdException {
         Game game = repoUtil.findGameById(gameId);
-//        game.setPhase("voting");
-//        gameRepository.save(game);
         return new QuestionVotesResponse(game.getCurrentQuestionAnswers());
     }
 
@@ -126,9 +122,14 @@ public class GameMasterController {
         List<QuestionAnswer> questionAnswerList = new ArrayList<>();
         for(QuestionAnswer questionAnswer: questionAnswers) {
             if (questionAnswer.getScore() == null) {
+                questionAnswer.setGame(null);
                 questionAnswerList.add(questionAnswer);
+            } else if (questionAnswer.getGame() != null) {
+                questionAnswer.setGame(null);
+                questionAnswerRepository.save(questionAnswer);
             }
         }
+        LOGGER.info(String.format("Unscored answers: %d", questionAnswerList.size()));
 
         if (questionAnswerList.isEmpty()) {
             return;
@@ -137,6 +138,8 @@ public class GameMasterController {
         Random rand = new Random();
         QuestionAnswer chosenQuestionAnswer = questionAnswerList.get(
                 rand.nextInt(questionAnswerList.size()));
+        chosenQuestionAnswer.setGame(game);
+        chosenQuestionAnswer.setScore(0);
 
         // Find other matching answer
         Set<QuestionAnswer> chosenQuestionAnswers = new HashSet<>();
@@ -144,9 +147,12 @@ public class GameMasterController {
         for (QuestionAnswer questionAnswer: questionAnswerList) {
             if (questionAnswer.getQuestion().equals(chosenQuestionAnswer.getQuestion()) &&
                     !questionAnswer.getId().equals(chosenQuestionAnswer.getId())) {
+                questionAnswer.setGame(game);
+                questionAnswer.setScore(0);
                 chosenQuestionAnswers.add(questionAnswer);
             }
         }
+        LOGGER.debug(String.format("Found %d questions to replace, this should be 2.", chosenQuestionAnswers.size()));
         LOGGER.info(String.format("Chosen question: %s", chosenQuestionAnswer.getQuestion()));
         LOGGER.info(String.format("Chosen questionId: %d", chosenQuestionAnswer.getId()));
         game.setCurrentQuestionAnswers(chosenQuestionAnswers);
@@ -155,7 +161,33 @@ public class GameMasterController {
 
     @RequestMapping(value = "/game/{gameId}/final-results", method = RequestMethod.GET)
     public @ResponseBody FinalResultsResponse getFinalResults(@PathVariable Long gameId) throws InvalidGameIdException {
-        return new FinalResultsResponse(repoUtil.findGameById(gameId).getContenders());
+        Game game = repoUtil.findGameById(gameId);
+        if (!game.getPhase().equals("final results")) {
+            game.setPhase("final results");
+            gameRepository.save(game);
+        }
+        return new FinalResultsResponse(game.getContenders());
+    }
+
+    @RequestMapping(value = "/game/{gameId}/all-votes-submitted", method = RequestMethod.GET)
+    public @ResponseBody AllVotesSubmitted allVotesSubmitted(@PathVariable Long gameId) throws InvalidGameIdException {
+        Game game = repoUtil.findGameById(gameId);
+        int numberOfVotes = 0;
+        for (QuestionAnswer questionAnswer : game.getCurrentQuestionAnswers()) {
+            numberOfVotes += questionAnswer.getScore();
+        }
+        LOGGER.info(String.format("Number of contenders: %d", game.getContenders().size()));
+        LOGGER.info(String.format("Number of votes submitted: %d", numberOfVotes));
+        if (numberOfVotes >= game.getContenders().size()) {
+            return new AllVotesSubmitted(true);
+        }
+        return new AllVotesSubmitted(false);
+    }
+
+    @RequestMapping(value = "/game/{gameId}/more-to-vote-on", method = RequestMethod.GET)
+    public @ResponseBody MoreToVoteOn moreQuestionsToVoteOn(@PathVariable Long gameId) throws Exception {
+        Game game = repoUtil.findGameById(gameId);
+        return new MoreToVoteOn(canContinueVoting(game));
     }
 
     void setQuestions(Game game, Set<String> questions) {
@@ -269,6 +301,7 @@ public class GameMasterController {
                 selectedQuestionStr = questionAnswer.getQuestion();
                 questionAnswer.setGame(game);
                 questionAnswer.setScore(0);
+                questionAnswerRepository.save(questionAnswer);
                 break;
             }
             i++;
@@ -278,6 +311,7 @@ public class GameMasterController {
                 selectedQuestionAnswers.add(questionAnswer);
                 questionAnswer.setGame(game);
                 questionAnswer.setScore(0);
+                questionAnswerRepository.save(questionAnswer);
             }
             i++;
         }

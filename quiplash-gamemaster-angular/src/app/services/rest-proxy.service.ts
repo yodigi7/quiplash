@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
@@ -33,8 +33,26 @@ export class RestProxyService {
 
   startVoting(gameId: number) {
     let url = this.endpoint + `/game/${gameId}/start-voting`;
-    console.log('Sending request to url: ' + url);    
+    console.log('Sending request to url: ' + url);
     return this.http.post(url, null, { "headers": this.restHeader });
+  }
+
+  setNextToScore(gameId: number) {
+    let url = this.endpoint + `/game/${gameId}/set-next-to-score`;
+    console.log('Sending request to url: ' + url);
+    return this.http.post(url, null, { "headers": this.restHeader });
+  }
+
+  getWhetherAllVotesSubmitted(gameId: number): any {
+    let url = this.endpoint + `/game/${gameId}/all-votes-submitted`;
+    console.log('Sending request to url: ' + url);
+    return this.http.get(url, { "headers": this.restHeader });  
+  }
+
+  getWhetherMoreToVoteOn(gameId: number): any {
+    let url = this.endpoint + `/game/${gameId}/more-to-vote-on`;
+    console.log('Sending request to url: ' + url);
+    return this.http.get(url, { "headers": this.restHeader });
   }
 
   getQuestionVotes(gameId: number): any {
@@ -50,7 +68,7 @@ export class RestProxyService {
   }
 
   getFinalResults(gameId: number): any {
-    let url = this.endpoint + `/game/${gameId}/question-to-score`;
+    let url = this.endpoint + `/game/${gameId}/final-results`;
     console.log('Sending request to url: ' + url);
     return this.http.get(url, { "headers": this.restHeader, observe: "response"});
   }
@@ -63,6 +81,12 @@ export class RestProxyService {
 
   getPhase(gameId: number): any {
     let url = this.endpoint + `/game/${gameId}/phase`;
+    console.log('Sending request to url: ' + url);
+    return this.http.get(url, { "headers": this.restHeader, observe: "response"});
+  }
+
+  getRound(gameId: number): any {
+    let url = this.endpoint + `/game/${gameId}/round-number`;
     console.log('Sending request to url: ' + url);
     return this.http.get(url, { "headers": this.restHeader, observe: "response"});
   }

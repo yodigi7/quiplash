@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class MainController {
 
-    Logger LOGGER = LoggerFactory.getLogger(MainController.class);
+    private Logger LOGGER = LoggerFactory.getLogger(MainController.class);
 
     @Autowired
     private GameRepository gameRepository;
@@ -58,10 +58,11 @@ public class MainController {
     }
 
     @RequestMapping(value = "/game/{gameId}/end", method = RequestMethod.POST)
-    public void endGame(@PathVariable Long id) throws Exception {
-        Game game = repoUtil.findGameById(id);
+    public void endGame(@PathVariable Long gameId) throws Exception {
+        Game game = repoUtil.findGameById(gameId);
         if (game != null) {
             gameRepository.delete(game);
+            return;
         }
         throw new Exception("Game never existed");
     }

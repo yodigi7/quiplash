@@ -32,14 +32,15 @@ export class FinalResultsComponent implements OnChanges {
     this.restProxy.getFinalResults(this.gameId)
       .subscribe(
         resp => {
+          console.log(resp);
           if (resp.status === 200) {
-            this.contenders = resp.body.contenders
+            this.contenders = resp.body.contenders;
+            this.restProxy.endGame(this.gameId).subscribe();
           }
         },
         errors => {
-
-        }
-      );
+          console.error(errors);
+        });
   }
 
 }

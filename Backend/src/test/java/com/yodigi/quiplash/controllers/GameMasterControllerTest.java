@@ -6,7 +6,6 @@ import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
-import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.GameRepository;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.GeneralUtil;
@@ -104,7 +103,7 @@ public class GameMasterControllerTest {
         game2.setId(2L);
         game2.setContenders(contenders);
         doReturn(game).when(repoUtil).findGameById(1L);
-        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(anyInt());
+        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(2);
         doReturn(game2).when(repoUtil).findGameById(2L);
 
         mockMvc.perform(post("/game/1/start-game"))
@@ -289,6 +288,7 @@ public class GameMasterControllerTest {
         contender.setId(1L);
         contender.setName("contender name");
         Game game = new Game();
+        game.setPhase("test");
         game.setContenders(Collections.singletonList(contender));
         Set<Contender> expectedContenders = new HashSet<>();
         expectedContenders.add(contender);
@@ -300,6 +300,58 @@ public class GameMasterControllerTest {
         FinalResultsResponse finalResultsResponse = gameMasterController.getFinalResults(1L);
 
         assertEquals(expectedContenders, finalResultsResponse.getContenders());
+    }
+
+    @Test
+    public void givenValidGameId_whenCallingSet_thenCurrentQuestionAnswersAreUpdated() throws Exception {
+        Game game = new Game();
+        QuestionAnswer currentQuestionAnswer1 = new QuestionAnswer();
+        QuestionAnswer currentQuestionAnswer2 = new QuestionAnswer();
+        QuestionAnswer newQuestionAnswer1 = new QuestionAnswer();
+        QuestionAnswer newQuestionAnswer2 = new QuestionAnswer();
+        Round round = new Round();
+        currentQuestionAnswer1.setGame(game);
+        currentQuestionAnswer2.setGame(game);
+        currentQuestionAnswer1.setScore(0);
+        currentQuestionAnswer2.setScore(0);
+        newQuestionAnswer1.setScore(null);
+        newQuestionAnswer2.setScore(null);
+        currentQuestionAnswer1.setId(1L);
+        currentQuestionAnswer2.setId(2L);
+        newQuestionAnswer1.setId(3L);
+        newQuestionAnswer2.setId(4L);
+        currentQuestionAnswer1.setQuestion("question1");
+        currentQuestionAnswer2.setQuestion("question1");
+        newQuestionAnswer1.setQuestion("question2");
+        newQuestionAnswer2.setQuestion("question2");
+        currentQuestionAnswer1.setRound(round);
+        currentQuestionAnswer2.setRound(round);
+        newQuestionAnswer1.setRound(round);
+        newQuestionAnswer2.setRound(round);
+        List<QuestionAnswer> expectedNewQuestionAnswers = new ArrayList<>();
+        expectedNewQuestionAnswers.add(newQuestionAnswer1);
+        expectedNewQuestionAnswers.add(newQuestionAnswer2);
+        List<QuestionAnswer> currentQuestionAnswers = new ArrayList<>();
+        currentQuestionAnswers.add(currentQuestionAnswer1);
+        currentQuestionAnswers.add(currentQuestionAnswer2);
+        List<QuestionAnswer> allQuestionAnswers = new ArrayList<>();
+        allQuestionAnswers.add(currentQuestionAnswer1);
+        allQuestionAnswers.add(currentQuestionAnswer2);
+        allQuestionAnswers.add(newQuestionAnswer1);
+        allQuestionAnswers.add(newQuestionAnswer2);
+        round.setQuestionAnswers(allQuestionAnswers);
+        game.setCurrentQuestionAnswers(currentQuestionAnswers);
+        game.setRound(1);
+        game.setId(1L);
+        game.setRounds(Collections.singletonList(round));
+        doReturn(game).when(repoUtil).findGameById(1L);
+        doReturn(round).when(generalUtil).getRoundByRoundNum(anyInt(), any());
+
+        gameMasterController.setNextToScore(1L);
+
+        assertEquals(expectedNewQuestionAnswers.size(), game.getCurrentQuestionAnswers().size());
+        assertTrue(expectedNewQuestionAnswers.contains(game.getCurrentQuestionAnswers().get(0)));
+        assertTrue(expectedNewQuestionAnswers.contains(game.getCurrentQuestionAnswers().get(1)));
     }
 
     @Test

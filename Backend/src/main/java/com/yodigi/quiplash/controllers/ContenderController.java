@@ -8,6 +8,7 @@ import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
+import com.yodigi.quiplash.utils.GeneralUtil;
 import com.yodigi.quiplash.utils.RepoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,16 @@ public class ContenderController {
     private Logger LOGGER = LoggerFactory.getLogger(ContenderController.class);
 
     @Autowired
+    private GeneralUtil generalUtil;
+
+    @Autowired
     private RepoUtil repoUtil;
 
     @Autowired
     private QuestionAnswerRepository questionAnswerRepository;
+
+    @Autowired
+    private GameMasterController gameMasterController;
 
     @RequestMapping(value = "/game/{gameId}/name/{name}/questions", method = RequestMethod.GET)
     public @ResponseBody QuestionsResponse restGetQuestions(@PathVariable Long gameId, @PathVariable String name) throws Exception {
@@ -55,7 +62,9 @@ public class ContenderController {
 
         questionAnswer.setAnswer(answer);
         questionAnswerRepository.save(questionAnswer);
-        //TODO: Do a check to see if everyone is done early
+        if (allQuestionsAnswered(generalUtil.getQuestionAnswers(game))) {
+            gameMasterController.startVoting(gameId);
+        }
     }
 
     @RequestMapping(value = "/game/{gameId}/name/{name}/vote", method = RequestMethod.POST)
@@ -100,5 +109,14 @@ public class ContenderController {
         }
         LOGGER.warn("Current round: " + currentRound);
         throw new Exception("This should never happen..., no more rounds left");
+    }
+
+    boolean allQuestionsAnswered(Set<QuestionAnswer> questionAnswers) {
+        for (QuestionAnswer questionAnswer : questionAnswers) {
+            if (questionAnswer.getAnswer() == null) {
+                return false;
+            }
+        }
+        return true;
     }
 }
