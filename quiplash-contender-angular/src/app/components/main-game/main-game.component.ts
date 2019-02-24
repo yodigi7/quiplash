@@ -27,6 +27,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
   name: string;
   gameId: number;
   phase = this.joinPhase;
+  realPhase = this.joinPhase;
   private interval: NodeJS.Timer;
   private updateRealPhaseInterval: NodeJS.Timer;
 
@@ -72,6 +73,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
   repeatedWait(targetPhase: string, outerThis: this) {
     outerThis.restProxy.getPhase(outerThis.gameId).subscribe(
       resp => {
+        outerThis.realPhase = resp.body.phase;
         if (resp.status == 200 && resp.body.phase === targetPhase) {
           clearInterval(outerThis.interval);
           outerThis.phase = resp.body.phase;
@@ -89,6 +91,7 @@ export class MainGameComponent implements OnInit, OnDestroy {
   updateRealPhase(outerThis: this) {
     outerThis.restProxy.getPhase(outerThis.gameId).subscribe(
       resp => {
+        outerThis.realPhase = resp.body.phase;
         if (resp.status == 200 && outerThis.phase !== outerThis.waitPhase) {
           clearInterval(outerThis.interval);
           outerThis.phase = resp.body.phase;

@@ -55,4 +55,10 @@ export class RestProxyService {
     console.log('Sending request to url: ' + url);
     return this.http.post(url, JSON.stringify(requestBody), { "headers": this.restHeader, observe: "response"});
   }
+
+  startGame(gameId: number) {
+    let url = this.endpoint + `/game/${gameId}/start-game`;
+    console.log('Sending request to url: ' + url);
+    return this.http.post(url, null, { "headers": this.restHeader });
+  }
 }

@@ -1,15 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { RestProxyService } from 'src/app/services/rest-proxy.service';
 
 @Component({
   selector: 'app-wait',
   templateUrl: './wait.component.html',
   styleUrls: ['./wait.component.css']
 })
-export class WaitComponent implements OnInit {
+export class WaitComponent implements OnChanges {
 
-  constructor() { }
+  @Input() gameId: number;
+  @Input() showStartButton: boolean = false;
 
-  ngOnInit() {
+  constructor(private restProxy: RestProxyService) { }
+
+  ngOnChanges() {
+  }
+
+  startGame() {
+    this.restProxy.startGame(this.gameId).subscribe();
   }
 
 }

@@ -42,13 +42,13 @@ public class ContenderControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    GameMasterController gameMasterController;
+    private GameMasterController gameMasterController;
     @Mock
-    GeneralUtil generalUtil;
+    private GeneralUtil generalUtil;
     @Mock
-    RepoUtil repoUtil;
+    private RepoUtil repoUtil;
     @Mock
-    QuestionAnswerRepository questionAnswerRepository;
+    private QuestionAnswerRepository questionAnswerRepository;
     @InjectMocks
     private ContenderController contenderControllerMock;
 

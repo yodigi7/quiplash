@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { RestProxyService } from 'src/app/services/rest-proxy.service';
 
 @Component({
   selector: 'app-wait',
@@ -8,7 +9,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class WaitComponent {
 
   @Input() gameId: number;
-  @Input() visible: boolean;  
+  @Input() visible: boolean;
 
-  constructor() { }
+  constructor(private restProxy: RestProxyService) { }
 }
