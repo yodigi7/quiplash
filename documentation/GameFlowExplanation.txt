@@ -1,0 +1,5 @@
+Joining phase - this is the phase where the game mode as been started but other players are welcome to join
+Answering phase - this is the phase where the contenders are answering their questions/prompts
+Waiting phase - this is where the contenders are waiting on the other contenders to finish answering/voting
+Voting phase - this is where the contenders are voting on the answers
+Final results phase - this is the phase where the game has finished and the results are displayed

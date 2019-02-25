@@ -1,1 +1,0 @@
-web: java -jar Backend/target/quiplash-0.0.1-SNAPSHOT.jar
