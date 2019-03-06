@@ -1,0 +1,20 @@
+:root {
+    --black-color: #222222;
+    --red-color: #C33149;
+    --grey-color: #D0BCD5;
+    background-color: var(--black-color);
+}
+
+body {
+    background-color: var(--black-color);
+    color: var(--grey-color);
+}
+
+.btn, button {
+    background-color: var(--red-color);
+    border-color: var(--red-color);
+}
+
+input, textarea {
+    margin-bottom: 2em;
+}

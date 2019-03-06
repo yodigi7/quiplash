@@ -1,6 +1,6 @@
 <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
   <div class="form-group">
-    <label for="gameId">
+    <label for="gameId" style="text-align: left">
       Game Id:
     </label>
     <input type="number" formControlName="gameId" class="form-control" id="gameId"/> 
@@ -19,7 +19,8 @@
     </div>
   </div>
 
-  <input type="submit" value="Send message" class="btn btn-primary"/>
-
+  <span style="text-align: center; display: block">
+    <input type="submit" value="Send message" class="btn btn-primary"/>
+  </span>
   {{ errorMessage }}
 </form>

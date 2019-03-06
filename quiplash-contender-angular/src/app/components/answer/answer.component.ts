@@ -57,6 +57,7 @@ export class AnswerComponent implements OnChanges {
     this.restProxy.submitAnswer(this.gameId, this.name, this.messageForm.controls.answer.value, this.questionIds[0])
       .subscribe(
         resp => {
+          this.messageForm.controls["answer"].patchValue("");
           this.questionIds.shift();
           this.questionsToAnswer.shift();
           this.currentQuestion = this.questionsToAnswer[0];

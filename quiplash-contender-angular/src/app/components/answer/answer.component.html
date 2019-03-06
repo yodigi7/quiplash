@@ -1,14 +1,12 @@
-<p>
-  answer works!
-</p>
-
 <form *ngIf="questionsToAnswer.length > 0" (ngSubmit)='submitAnswer()' id="answerForm" [formGroup]="messageForm">
     <div *ngIf="error">
       Submission unsuccessful, try again
     </div>
-    <label for="currentQuestion">
+    <label for="currentQuestion" style="text-align: center; margin-bottom: 1em;">
       {{ currentQuestion }}
     </label>
-    <textarea formControlName="answer" rows=2 placeholder="Enter repsonse here"></textarea>
-    <input type="submit" class="btn btn-primary"/>
+    <textarea formControlName="answer" rows=2 placeholder="Enter funny line here" style="display: block; width: 100%"></textarea>
+    <span style="text-align: center; display: block;">
+      <input type="submit" class="btn btn-primary"/>
+    </span>
   </form>
