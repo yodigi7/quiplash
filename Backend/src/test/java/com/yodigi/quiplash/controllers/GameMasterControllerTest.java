@@ -6,6 +6,7 @@ import com.yodigi.quiplash.entities.Contender;
 import com.yodigi.quiplash.entities.Game;
 import com.yodigi.quiplash.entities.QuestionAnswer;
 import com.yodigi.quiplash.entities.Round;
+import com.yodigi.quiplash.exceptions.InvalidGameIdException;
 import com.yodigi.quiplash.repositories.GameRepository;
 import com.yodigi.quiplash.repositories.QuestionAnswerRepository;
 import com.yodigi.quiplash.utils.GeneralUtil;
@@ -355,6 +356,21 @@ public class GameMasterControllerTest {
         assertTrue(expectedNewQuestionAnswers.contains(game.getCurrentQuestionAnswers().get(1)));
     }
 
+    @Test(expected = Exception.class)
+    public void givenOnlyOnePersonInGameId_whenCallingStartGame_thenThrowException() throws Exception {
+        Game game = new Game();
+        Set<Contender> contenders = new HashSet<>();
+        contenders.add(new Contender());
+        game.setContenders(contenders);
+        doReturn(game).when(repoUtil).findGameById(1L);
+
+        mockMvc.perform(post("/game/1/start-game"))
+                .andExpect(status().isInternalServerError());
+        gameMasterController.getFinalResults(1L);
+    }
+
+    // TODO: add test for checking that a group of 3+ will have questions evenly split each round
+
     @Test
     public void setQuestions_returnsValidSetup() {
         Game game = new Game();
@@ -413,7 +429,4 @@ public class GameMasterControllerTest {
         assertEquals(newCount, questions.size());
     }
 
-    // TODO: add test for checking that a group of 3+ will have questions evenly split each round
-
-    // TODO: add test to check for exception when only one person is in the game and request for start
 }

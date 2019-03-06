@@ -30,7 +30,6 @@ public class MainController {
     @RequestMapping(value = "/init", method = RequestMethod.POST)
     public @ResponseBody InitResponse initGame() {
         LOGGER.info("INITIALIZING GAME");
-        LOGGER.debug("test");
         Game game = new Game();
         game.setPhase("joining");
         return new InitResponse(gameRepository.save(game).getId());
@@ -38,17 +37,21 @@ public class MainController {
 
     @RequestMapping(value = "/game/{gameId}/join", method = RequestMethod.POST)
     public void joinGame(@PathVariable Long gameId, @RequestBody JoinRequest joinRequest) throws Exception {
+        LOGGER.info(String.format("Inside join game mapping. Id: %d, Name: %s", gameId, joinRequest.getName()));
         String name = joinRequest.getName();
         Game game = repoUtil.findGameById(gameId);
         if (!game.getPhase().equals("joining")) {
+            LOGGER.error(String.format("%s tried to join game %d after phase has closed", name, gameId));
             throw new Exception("Sorry, the joining phase has closed");
         }
 
         if (exists(game, name)) {
+            LOGGER.error(String.format("%s already exists for game %d", name, gameId));
             throw new ContenderAlreadyExistsException(name + " already exists for game: " + gameId.toString());
         }
 
         if (game.getContenders().size() == 8) {
+//            LOGGER.info();
             // TODO: add to audience
         } else {
             LOGGER.info(name + " joined game: " + gameId.toString());
