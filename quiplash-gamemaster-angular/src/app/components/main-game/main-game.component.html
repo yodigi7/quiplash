@@ -1,5 +1,4 @@
-<app-header [gameId]="gameId" [roundNum]="roundNum"></app-header>
-Phase: {{ phase }}
+<app-header [gameId]="gameId" [roundNum]="roundNum" [phase]="phase"></app-header>
 <app-join *ngIf="phase === joinPhase" [gameId]="gameId" [visible]="phase === joinPhase"></app-join>
 <app-vote *ngIf="phase === votePhase" [gameId]="gameId" [visible]="phase === votePhase"></app-vote>
 <app-wait *ngIf="phase === waitPhase || phase === answerPhase" [gameId]="gameId" [visible]="phase === waitPhase || phase === answerPhase"></app-wait>

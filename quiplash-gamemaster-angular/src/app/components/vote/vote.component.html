@@ -1,11 +1,31 @@
-<p>
-  vote works!
-</p>
-Countdown: {{ countdown }}<br>
-Prompt: {{ prompt }}<br>
-Left Answer: {{ leftAnswer }}<br>
-Right Answer: {{ rightAnswer }}<br>
-<div *ngIf="showVotes">
-  Left Score: {{ leftScore }}<br>
-  Right Score: {{ rightScore }}
+<div id="countdown">
+  Countdown: {{ countdown }}
+</div>
+<div id="prompt">
+  Prompt: {{ prompt }}
+</div>
+<div id="answers">
+  <div id="left">
+    <div id="left-answer">
+      Left Answer:
+      <br>
+      <span>
+        {{ leftAnswer }}
+      </span>
+    </div>
+    <div *ngIf="showVotes" id="left-score">
+      Left Score: {{ leftScore }}
+    </div>
+  </div>
+  <div id="right">
+    <div id="right-answer">
+      Right Answer:
+      <br>
+      <span>
+        {{ rightAnswer }}
+      </span>
+    </div>
+    <div *ngIf="showVotes" id="right-score">
+      Right Score: {{ rightScore }}
+  </div>
 </div>

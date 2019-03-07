@@ -1,0 +1,14 @@
+:root {
+    --black-color: #222222;
+    --red-color: #C33149;
+    --grey-color: #D0BCD5;
+    background-color: var(--black-color);
+}
+
+body {
+    background-color: var(--black-color);
+    color: var(--grey-color);
+    padding-left: 5%;
+    padding-right: 5%;
+    font-size: 1.5em;
+}

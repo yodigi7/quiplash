@@ -1,0 +1,31 @@
+#countdown {
+    font-size: 2em;
+    padding-bottom: 3%;
+}
+
+#prompt {
+    padding-bottom: 5%;
+}
+
+#answers {
+    display: block;
+    text-align: center;
+}
+
+#left {
+    padding-right: 5%;
+}
+
+#left, #right {
+    width: 45%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#left-answer, #right-answer {
+    padding-bottom: 7%;
+}
+
+#left-score, #right-score {
+    display: inline-block;
+}

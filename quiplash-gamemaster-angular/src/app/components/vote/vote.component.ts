@@ -53,11 +53,13 @@ export class VoteComponent implements OnChanges {
   }
 
   countdownFn(outerThis: this) {
-    if (--outerThis.countdown <= 0) {
+    if (outerThis.countdown <= 0) {
       clearInterval(outerThis.countdownInterval);
       clearInterval(outerThis.votesSubmittedInterval);
       outerThis.updateScores(outerThis);
       outerThis.showVotes = true;
+    } else {
+      outerThis.countdown--;
     }
   }
 

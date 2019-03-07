@@ -1,0 +1,8 @@
+app-header {
+    display: block;
+    padding-top: 3%;
+}
+
+app-vote, app-wait, app-final-results {
+    text-align: center;
+}

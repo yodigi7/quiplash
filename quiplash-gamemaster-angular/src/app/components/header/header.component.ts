@@ -9,6 +9,7 @@ export class HeaderComponent implements OnInit {
 
   @Input() gameId: number;
   @Input() roundNum: number;
+  @Input() phase: string;
 
   constructor() { }
 

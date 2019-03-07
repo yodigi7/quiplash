@@ -1,6 +1,10 @@
-<div v-if="roundNum">
+<div *ngIf="roundNum">
   Round Num: {{ roundNum }}
 </div>
-<div v-if="gameId">
+<div *ngIf="gameId">
   Game Id: {{ gameId }}
 </div>
+<div *ngIf="phase">
+  Phase: {{ phase }}
+</div>
+<hr>
