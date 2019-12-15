@@ -8,6 +8,9 @@
 
 First order of business is to come up with a good name, any ideas?
 
+## Quickstart
+In order to access the GameMaster (the shared screen for all contenders) go to: https://yodigi7.github.io/quiplash/gamemaster/. The access point for each contender is https://yodigi7.github.io/quiplash/contender/. Give it a few seconds to boot up as it is likely sleeping on Heroku, it should take ~30 seconds for the server to spin up and start working.
+
 ## Project Explained
 So as you guys should know by the current title this is meant to be a free open source version of quiplash. The overall architecture is
 a backend that keeps track of all the game data. It then supplies that data to two frontends, one of which is the main/common screen that
