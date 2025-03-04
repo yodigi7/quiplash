@@ -105,7 +105,7 @@ public class GameMasterControllerTest {
         game2.setId(2L);
         game2.setContenders(contenders);
         doReturn(game).when(repoUtil).findGameById(1L);
-        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(2);
+        doReturn(new HashSet<>()).when(retrieveQuestionsUtil).getRandomQuestions(6);
         doReturn(game2).when(repoUtil).findGameById(2L);
 
         mockMvc.perform(post("/game/1/start-game"))
